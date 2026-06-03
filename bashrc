@@ -31,6 +31,55 @@ youtube() {
     fi
     mpv --ytdl-format="bestvideo[height<=720]+bestaudio/best" "https://www.youtube.com/watch?v=$1"
 }
+#wiki maybe
+wiki() {
+    if [ -z "$1" ]; then
+        echo "Usage: wiki [search term]"
+        return 1
+    fi
+    local search_query=$(echo "$@" | sed 's/ /%20/g')
+    local search_list=$(curl -s "https://en.wikipedia.org/w/api.php?action=opensearch&format=json&search=${search_query}&limit=5" | jq -r '.[1][]')
+    if [ -z "$search_list" ]; then
+        echo "No results found for '$*'"
+        return 1
+    fi
+    local total_lines=$(echo "$search_list" | wc -l)
+    local selection=""
+    #menu
+    if [ "$total_lines" -eq 1 ]; then
+        selection="$search_list"
+    else
+        echo "Select an article:"
+        local i=1
+        while IFS= read -r line; do
+            echo -e "  \e[32m[$i]\e[0m $line"
+            local option_$i="$line"
+            i=$((i + 1))
+        done <<< "$search_list"
+        echo ""
+        local choice
+        read -r -p "Enter number (or press Enter to cancel): " choice
+        if [[ "$choice" =~ ^[0-9]+$ ]] && [ "$choice" -lt "$i" ] && [ "$choice" -gt 0 ]; then
+            local var_name="option_$choice"
+            selection="${!var_name}"
+        else
+            return 0
+        fi
+    fi
+    # Fetching nonesense
+    if [ -n "$selection" ]; then
+        local final_query=$(echo "$selection" | sed 's/ /%20/g')
+        local response=$(curl -s "https://en.wikipedia.org/w/api.php?action=query&prop=extracts&exintro=1&explaintext=1&titles=${final_query}&redirects=1&format=json")
+        local extract=$(echo "$response" | jq -r '.query.pages | to_entries[0].value.extract // empty')
+        echo -e "\n\e[1;34m=== $selection ===\e[0m\n"
+        if [ -n "$extract" ]; then
+            echo "$extract" | fmt -w $(tput cols)
+        else
+            echo "Could not retrieve summary for $selection."
+        fi
+        echo ""
+    fi
+}
 #used for watching twitch via mpv
 twitch() {
     if [[ "$1" == "--help" || "$1" == "-h" || -z "$1" ]]; then
@@ -56,7 +105,7 @@ islive() {
         fi
     done
 }
-#used for getting youtube video information. ytinfo xyzabc
+#used for getting youtube video information. ytinfo xyzabc. mostly useless due to affiliate links
 ytinfo() {
     if [[ -z "$1" ]]; then
         echo "Usage: ytinfo [video_id/url]"
@@ -83,7 +132,7 @@ redditdl() {
 
     echo "Downloading $filename..."
 
-    # 3. Download (Silent mode, follow redirects)
+    #Download w curl
     curl -sL "$1" -o "$filename"
 
     echo "Done! Saved as $filename"
@@ -97,7 +146,7 @@ translatesocial() {
 }
 
 googler() {
-    # Replace spaces with + for the URL
+    #wiki is better than this in my experience, but i will keep messing with it
     local query=$(echo "$@" | tr ' ' '+')
     
     curl -sL -A "Mozilla/5.0" "https://duckduckgo.com/lite/?q=${query}" | \
@@ -107,9 +156,9 @@ googler() {
     awk '{$1=$1}1' | \
     fmt -w $(tput cols)
 }
-
+#for toot tui media viewer, obv
 export TOOT_TUI_MEDIA_VIEWER="mpv --vo=drm"
-
+#mainly useless if you are here from my video. i was just launching into DE's to try them. Do not worry about this nonsense
 alias xfce='startx ~/.xinitrc xfce4'
 alias cinnamon='startx ~/.xinitrc cinnamon'
 alias gnome='export XDG_SESSION_TYPE=wayland; export XDG_CURRENT_DESKTOP=GNOME; dbus-run-session gnome-shell --display-server --wayland'
