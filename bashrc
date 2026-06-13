@@ -11,6 +11,7 @@ PS1='[\u@\h \W]\$ '
 
 #my shit, i added below-
 #usage: seach 5 example videos
+#used to search youtube via tty
 search() {
     if [[ "$1" == "--help" || "$1" == "-h" || -z "$1" ]]; then
         echo "Usage: search [count] [query]"
@@ -23,7 +24,7 @@ search() {
     query="$*"
     yt-dlp "ytsearch$count:$query" --get-id --get-title
 }
-#used for watching youtube mpv
+#used for watching youtube via mpv from tty
 youtube() {
     if [[ "$1" == "--help" || "$1" == "-h" || -z "$1" ]]; then
         echo "Usage: youtube [video_id]"
@@ -32,6 +33,8 @@ youtube() {
     mpv --ytdl-format="bestvideo[height<=720]+bestaudio/best" "https://www.youtube.com/watch?v=$1"
 }
 #wiki maybe
+#usage: wiki kernel
+#another example: wiki united states of america
 wiki() {
     if [ -z "$1" ]; then
         echo "Usage: wiki [search term]"
@@ -81,6 +84,7 @@ wiki() {
     fi
 }
 #used for watching twitch via mpv
+#usage: twitch ohnepixel
 twitch() {
     if [[ "$1" == "--help" || "$1" == "-h" || -z "$1" ]]; then
         echo "Usage: twitch [streamer_name]"
@@ -88,7 +92,7 @@ twitch() {
     fi
     streamlink --player mpv "twitch.tv/$1" 720p60
 }
-# usage: islive xqc
+# usage: islive xqc ohnepixel caseoh_
 islive() {
     if [[ "$1" == "--help" || "$1" == "-h" ]]; then
         echo "Usage: islive [streamer1] [streamer2] ..."
@@ -113,16 +117,17 @@ ytinfo() {
     fi
     yt-dlp --get-title --get-duration --get-description "https://www.youtube.com/watch?v=$1"
 }
+#reddit, used to load reddittui with the subreddit flag. Customize/edit the subreddits to your liking
 reddit() {
     if [ -z "$1" ]; then
-        reddittui --subreddit archlinux+linuxquestions+masterhacker+linuxmint+learnpython+BlizzardOfLInux+linuxmemes+computerhelp+linux4noobs+HowToHack+Piracy+computerviruses+LinuxCirclejerk+desktops+cachyos+pchelp+youtubedl+Hacking_Tutorials+Craptopgamingadvice+pcmasterrace+linux+TrueAnon
+        reddittui --subreddit archlinux+linuxquestions+masterhacker+linuxmint+learnpython+linuxmemes+computerhelp+linux4noobs+HowToHack+Piracy+computerviruses+LinuxCirclejerk+desktops+cachyos+pchelp+youtubedl+Hacking_Tutorials+Craptopgamingadvice+pcmasterrace+linux+TrueAnon
     else
         reddittui --subreddit "$1"
     fi
 }
-
+#used to download image from reddit
 redditdl() {
-    # USAGE: redditdl url.png (must be an actual image file, not a preview or video or whatever other nonsense reddit tries to display)
+    # USAGE: redditdl url (must be an actual image file, not a preview or video or whatever other nonsense reddit tries to display)
     if [ -z "$1" ]; then
         echo "Usage: redditdl <URL>"
         return 1
@@ -137,6 +142,7 @@ redditdl() {
 
     echo "Done! Saved as $filename"
 }
+#used specifically to translate posts from mastedon social, requires the post idea which I get from post details within toot tui, the tui for mastedon social i personally use
 translatesocial() {
     if [ -z "$1" ]; then
         echo "Usage: translatesocial <post-id>"
@@ -144,7 +150,7 @@ translatesocial() {
     fi
     toot status "$1" | trans :en -b
 }
-
+#shitty google command my bad yall
 googler() {
     #wiki is better than this in my experience, but i will keep messing with it
     local query=$(echo "$@" | tr ' ' '+')
@@ -158,7 +164,7 @@ googler() {
 }
 #for toot tui media viewer, obv
 export TOOT_TUI_MEDIA_VIEWER="mpv --vo=drm"
-#mainly useless if you are here from my video. i was just launching into DE's to try them. Do not worry about this nonsense
+#mainly useless if you are here from my video. i was just launching into DE's to try them. Do not worry about this nonsense. I apologize if you had to see this ridiculous cornucopia of DEs
 alias xfce='startx ~/.xinitrc xfce4'
 alias cinnamon='startx ~/.xinitrc cinnamon'
 alias gnome='export XDG_SESSION_TYPE=wayland; export XDG_CURRENT_DESKTOP=GNOME; dbus-run-session gnome-shell --display-server --wayland'
