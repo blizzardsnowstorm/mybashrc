@@ -8,7 +8,7 @@
 alias ls='ls --color=auto'
 alias grep='grep --color=auto'
 PS1='[\u@\h \W]\$ '
-
+#things needed (most come with your distro but some require you to install via whatever method you prefer/can): curl, jq, mpv, yt-dlp, streamlink, reddittui, toot, trans, sed, awk, tr, grep, wc, fmt, ncurses
 #my shit, i added below-
 #usage: seach 5 example videos
 #used to search youtube via tty
